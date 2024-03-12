@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Orders</title>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Purchase Request</h2>
+        <table id="purchaseRequestTable" border="1">
+            <tr>
+                <th>Site</th>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Product Specifications</th>
+                <th>Vendor</th>
+                <th>Requester</th>
+                <th>Technician</th>
+            </tr>
+        </table>
+
+        <form id="emailForm">
+            <label for="recipientEmail">Recipient Email:</label>
+            <input type="email" id="recipientEmail" name="recipientEmail" required>
+            <button type="button" onclick="sendEmail()">Send Email</button>
+        </form>
+
+        <script>
+            // Function to load form data from localStorage
+            function loadFormDataFromLocalStorage() {
+                var storedData = localStorage.getItem("purchaseFormData");
+                return storedData ? JSON.parse(storedData) : null;
+            }
+
+            // Function to update the table with form data
+            function updateTable(data) {
+                var table = document.getElementById("purchaseRequestTable");
+                var newRow = table.insertRow(-1);
+
+                Object.values(data).forEach(function (value) {
+                    var cell = newRow.insertCell(-1);
+                    cell.innerHTML = value;
+                });
+            }
+
+            // Function to send email
+            function sendEmail() {
+                // Get the recipient email
+                var recipientEmail = document.getElementById("recipientEmail").value;
+
+                // You can add logic here to send an email using a server-side script (e.g., PHP)
+
+                // Example AJAX call (requires a server-side script to handle the email sending)
+                
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "email-sender.php", true);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+                var formData = loadFormDataFromLocalStorage();
+                formData.recipientEmail = recipientEmail;
+
+                xhr.send(JSON.stringify(formData));
+                
+
+                alert("Email sent to: " + recipientEmail);
+            }
+
+            // Load form data from localStorage on page load
+            document.addEventListener("DOMContentLoaded", function () {
+                var formData = loadFormDataFromLocalStorage();
+
+                if (formData) {
+                    // Update the table with form data
+                    updateTable(formData);
+                } else {
+                    alert("No form data found.");
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>
