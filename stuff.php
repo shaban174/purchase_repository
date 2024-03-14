@@ -1,78 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Information</title>
-</head>
-<body>
-    <form id="deviceForm">
-        <label for="deviceType">Choose a Device Type:</label>
-        <select id="deviceType" name="deviceType">
-            <option value="Laptop">Laptop</option>
-            <option value="Printer">Printer</option>
-            <option value="Mouse">Mouse</option>
-            <option value="Keyboard">Keyboard</option>
-            <option value="Headset">Headset</option>
-        </select>
-        <button type="button" onclick="getDeviceInfo()">Get Device Info</button>
-    </form>
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "purchase_system";
 
-    <div id="deviceInfoContainer">
-        <?php
-            if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['device'])) {
-                $selectedDevice = $_GET['device'];
-                
-                // Replace with your database connection details
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $dbname = "purchase_project";
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-                $conn = new mysqli($servername, $username, $password, $dbname);
+// Query to fetch company names
+$sql = "SELECT company_name FROM vendor";
+$result = $conn->query($sql);
 
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
+$company_names = array();
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $company_names[] = $row["company_name"];
+    }
+}
+$sql = "SELECT device_type, brand, specification, model, warranty FROM organization_assets";
+$result = $conn->query($sql);
 
-                $sql = "SELECT * FROM organization_assets WHERE device_type = '$selectedDevice'";
-                $result = $conn->query($sql);
+$company_names = array();
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $company_names[] = $row["device_type"];
+        $company_names[] = $row["brand"];
+        $company_names[] = $row["model"];
+        $company_names[] = $row["warranty"];
+    }
+}
 
-                if ($result->num_rows > 0) {
-                    echo "<table border='1'>";
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>ID: " . $row['id'] . "</td>";
-                        echo "<td>Device Type: " . $row['device_type'] . "</td>";
-                        echo "<td>Brand: " . $row['brand'] . "</td>";
-                        echo "<td>Model: " . $row['model'] . "</td>";
-                        echo "<td>Specifications: " . $row['specifications'] . "</td>";
-                        echo "<td>Serial Number: " . $row['serial_number'] . "</td>";
-                        echo "</tr>";
-                    }
-                    echo "</table>";
-                } else {
-                    echo "No information available for the selected device type.";
-                }
+// Close connection
+$conn->close();
 
-                $conn->close();
-            }
-        ?>
-    </div>
-
-    <script>
-        function getDeviceInfo() {
-            var selectedDevice = document.getElementById("deviceType").value;
-
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById("deviceInfoContainer").innerHTML = xhr.responseText;
-                }
-            };
-            xhr.open("GET", "index.php?device=" + selectedDevice, true);
-            xhr.send();
-        }
-    </script>
-</body>
-</html>
+// Return JSON response
+header('Content-Type: application/json');
+echo json_encode($company_names);
+?> correct any errors and they are selecting from the same database but different tables
