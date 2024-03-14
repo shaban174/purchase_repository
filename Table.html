@@ -26,6 +26,7 @@
             <label for="recipientEmail">Recipient Email:</label>
             <input type="email" id="recipientEmail" name="recipientEmail" required>
             <button type="button" onclick="sendEmail()">Send Email</button>
+            <a href="#" onclick="openPurchaseOrderPage()">Generate Purchase Order</a>
         </form>
 
         <script>
@@ -46,34 +47,46 @@
                 });
             }
 
+            // Function to open the purchase order page
+            function openPurchaseOrderPage() {
+                var formData = loadFormDataFromLocalStorage();
+                if (!formData) {
+                    alert("No form data found.");
+                    return;
+                }
+
+                // Construct the URL with form data as parameters
+                var url = "purchase_order.html?";
+                Object.entries(formData).forEach(([key, value]) => {
+                    url += `${encodeURIComponent(key)}=${encodeURIComponent(value)}&`;
+                });
+
+                // Open the purchase order page
+                window.open(url, "_blank");
+            }
+
             // Function to send email
             function sendEmail() {
-                // Get the recipient email
                 var recipientEmail = document.getElementById("recipientEmail").value;
-
-                // You can add logic here to send an email using a server-side script (e.g., PHP)
-
-                // Example AJAX call (requires a server-side script to handle the email sending)
-                
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "email-sender.php", true);
-                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
                 var formData = loadFormDataFromLocalStorage();
-                formData.recipientEmail = recipientEmail;
-
-                xhr.send(JSON.stringify(formData));
-                
-
-                alert("Email sent to: " + recipientEmail);
+                if (!formData) {
+                    alert("No form data found.");
+                    return;
+                }
+                var emailSubject = "Purchase Request";
+                var emailBody = "Please review the purchase request details below:\n\n";
+                Object.entries(formData).forEach(([key, value]) => {
+                    emailBody += `${key}: ${value}\n`;
+                });
+                var mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                window.location.href = mailtoLink;
+                alert("Email window prompted for: " + recipientEmail);
             }
 
             // Load form data from localStorage on page load
             document.addEventListener("DOMContentLoaded", function () {
                 var formData = loadFormDataFromLocalStorage();
-
                 if (formData) {
-                    // Update the table with form data
                     updateTable(formData);
                 } else {
                     alert("No form data found.");
