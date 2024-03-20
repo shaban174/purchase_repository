@@ -4,30 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rate - Purchase Order Table</title>
-    <style>
-        /* Your CSS styles here */
-    </style>
+    <link rel="stylesheet" href="rate.css">
 </head>
 <body>
 
-<h2>Vendor and Product Specification</h2>
-
-<table>
-    <tr>
-        <th>Vendor</th>
-        <th>Product Specifications</th>
-        <th>Choice (Yes/No)</th>
-    </tr>
-    <tr>
-        <td><span id="vendorInput"></span></td>
-        <td><span id="specsInput"></span></td>
-        <td><span id="userChoice"></span></td>
-    </tr>
-</table>
-
-<h2>Feedback Form</h2>
+<h2>Feedback Form with Vendor and Product Specification</h2>
 
 <form id="feedbackForm" action="#" method="post">
+    <label for="vendor">Vendor:</label>
+    <select id="vendor" name="vendor">
+        <!-- Options will be populated dynamically -->
+    </select>
+
+    <label for="product-specs">Product Specifications:</label>
+    <select id="product-specs" name="product-specs">
+        <!-- Options will be populated dynamically -->
+    </select>
+
+    <label for="user-choice">Choice (Yes/No):</label>
+    <select id="user-choice" name="user-choice">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+    </select>
+
     <label for="product-condition">Is the product in good shape?</label>
     <select id="product-condition" name="product-condition" required>
         <option value="" disabled selected>Choose an option</option>
@@ -57,26 +56,38 @@
 
 <h2>Total Points: <span id="totalPoints">0</span></h2>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 <script>
-    // Function to retrieve data from local storage and display on the page
-    function displayPurchaseOrder() {
+    // Function to populate vendor and product specification dropdowns
+    function populateDropdowns() {
         // Retrieve data from local storage
         var params = JSON.parse(localStorage.getItem("purchaseFormData"));
         if (params) {
-            document.getElementById("vendorInput").textContent = params["company"];
-            document.getElementById("specsInput").textContent = params["ProductSpecifications"];
-            document.getElementById("userChoice").textContent = params["userChoice"]; // Assuming "userChoice" is stored in localStorage
+            var vendorDropdown = document.getElementById("vendor");
+            var productSpecsDropdown = document.getElementById("product-specs");
+
+            // Populate vendor dropdown
+            var option = document.createElement("option");
+            option.text = params.company;
+            option.value = params.company;
+            vendorDropdown.add(option);
+
+            // Populate product specifications dropdown
+            option = document.createElement("option");
+            option.text = params.ProductSpecifications;
+            option.value = params.ProductSpecifications;
+            productSpecsDropdown.add(option);
         } else {
             console.error("No purchase form data found in local storage.");
         }
     }
 
-    // Function to calculate total points
+    // Function to calculate total points and store in local storage
     function calculateTotalPoints() {
         var points = 0;
         
         // Add 10 points for each "Yes" option in the first table
-        var userChoice = document.getElementById("userChoice").textContent;
+        var userChoice = document.getElementById("user-choice").value;
         if (userChoice === "Yes") {
             points += 10;
         }
@@ -101,21 +112,31 @@
             points += vendorRating;
         }
 
+        // Store points and form data in local storage
+        var formData = {
+            points: points,
+            vendor: document.getElementById("vendor").value,
+            productSpecs: document.getElementById("product-specs").value,
+            userChoice: userChoice,
+            productCondition: productCondition,
+            deliveryTime: deliveryTime,
+            productWorking: productWorking,
+            vendorRating: vendorRating
+        };
+        localStorage.setItem("purchaseFormPoints", JSON.stringify(formData));
+
         // Display total points
         document.getElementById("totalPoints").textContent = points;
     }
 
-    // Call the function to display purchase order details when the page loads
-    displayPurchaseOrder();
+    // Call the function to populate dropdowns when the page loads
+    populateDropdowns();
 
     // Call the function to calculate total points when the form is submitted
     document.getElementById("feedbackForm").addEventListener("submit", function(event) {
         event.preventDefault();
         calculateTotalPoints();
     });
-
-    // Call the function to calculate total points when the page loads
-    calculateTotalPoints();
 </script>
 
 </body>
