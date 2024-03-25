@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Storage Data</title>
+</head>
+<body>
+
+<h2>Local Storage Data</h2>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody id="data"></tbody>
+</table>
+
+<button onclick="displayLocalStorage()">Display Local Storage Data</button>
+<button onclick="clearLocalStorage()">Clear Local Storage</button>
+<button onclick="sendDataToPHP()">Send Data to PHP</button>
+
+<script>
+function displayLocalStorage() {
+  var dataContainer = document.getElementById('data');
+  dataContainer.innerHTML = '';
+  
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    var value = localStorage.getItem(key);
+    
+    var row = document.createElement('tr');
+    var keyCell = document.createElement('td');
+    var valueCell = document.createElement('td');
+    
+    keyCell.textContent = key;
+    valueCell.textContent = value;
+    
+    row.appendChild(keyCell);
+    row.appendChild(valueCell);
+    
+    dataContainer.appendChild(row);
+  }
+}
+
+function clearLocalStorage() {
+  localStorage.clear();
+  alert('Local Storage has been cleared.');
+  displayLocalStorage(); // Clear the table after clearing local storage
+}
+
+function sendDataToPHP() {
+  var xhr = new XMLHttpRequest();
+  var url = "data.php"; // Update this if the PHP file is in a different location
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      alert(xhr.responseText); // Display response from server
+    }
+  };
+  var dataToSend = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    var value = localStorage.getItem(key);
+    dataToSend[key] = value;
+  }
+  xhr.send(JSON.stringify(dataToSend));
+}
+</script>
+
+</body>
+</html>

@@ -55,6 +55,7 @@
 </form>
 
 <h2>Total Points: <span id="totalPoints">0</span></h2>
+<a href="data.html">Go to store</a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 <script>
@@ -129,14 +130,27 @@
         document.getElementById("totalPoints").textContent = points;
     }
 
+    // Function to display total points from local storage
+    function displayTotalPoints() {
+        var formData = JSON.parse(localStorage.getItem("purchaseFormPoints"));
+        if (formData) {
+            document.getElementById("totalPoints").textContent = formData.points;
+        }
+    }
+
     // Call the function to populate dropdowns when the page loads
     populateDropdowns();
+
+    // Call the function to display total points when the page loads
+    displayTotalPoints();
 
     // Call the function to calculate total points when the form is submitted
     document.getElementById("feedbackForm").addEventListener("submit", function(event) {
         event.preventDefault();
         calculateTotalPoints();
     });
+
+
 </script>
 
 </body>
